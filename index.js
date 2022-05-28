@@ -33,6 +33,15 @@ const run = async () => {
       const parts = await cursor.toArray();
       res.send(parts);
     });
+
+    // finding the parts by id
+    app.get("/purchase/:id", async (req, res) => {
+      const id = req.params.id;
+      console.log(id);
+      const query = { _id: ObjectId(id) };
+      const result = await partsCollection.findOne(query);
+      res.send(result);
+    });
   } finally {
   }
 };
