@@ -25,6 +25,8 @@ const run = async () => {
     await client.connect();
     console.log("db connected");
     const partsCollection = client.db("mobileParts").collection("parts");
+    const orderCollection = client.db("mobileParts").collection("orders");
+    const myOrderCollection = client.db("mobileParts").collection("myOrders");
 
     // getting all the parts
     app.get("/parts", async (req, res) => {
@@ -37,9 +39,35 @@ const run = async () => {
     // finding the parts by id
     app.get("/purchase/:id", async (req, res) => {
       const id = req.params.id;
-      console.log(id);
       const query = { _id: ObjectId(id) };
       const result = await partsCollection.findOne(query);
+      res.send(result);
+    });
+
+    app.post("/orders", async (req, res) => {
+      const newOrder = req.body;
+      const result = await orderCollection.insertOne(newOrder);
+      res.send(result);
+    });
+
+    app.post("/myOrders", async (req, res) => {
+      const newOrder = req.body;
+      const result = await myOrderCollection.insertOne(newOrder);
+      res.send(result);
+    });
+
+    app.get("/myOrders/:email", async (req, res) => {
+      const email = req.params.email;
+      const query = { email: email };
+      const cursor = myOrderCollection.find(query);
+      const myOrders = await cursor.toArray();
+      res.send(myOrders);
+    });
+
+    app.delete("/myOrders/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const result = await myOrderCollection.deleteOne(query);
       res.send(result);
     });
   } finally {
