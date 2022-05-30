@@ -27,6 +27,7 @@ const run = async () => {
     const partsCollection = client.db("mobileParts").collection("parts");
     const orderCollection = client.db("mobileParts").collection("orders");
     const myOrderCollection = client.db("mobileParts").collection("myOrders");
+    const reviewCollection = client.db("mobileParts").collection("reviews");
 
     // getting all the parts
     app.get("/parts", async (req, res) => {
@@ -34,6 +35,20 @@ const run = async () => {
       const cursor = partsCollection.find(query);
       const parts = await cursor.toArray();
       res.send(parts);
+    });
+
+    // getting all reviews
+    app.get("/reviews", async (req, res) => {
+      const query = {};
+      const cursor = reviewCollection.find(query);
+      const parts = await cursor.toArray();
+      res.send(parts);
+    });
+
+    app.post("/reviews", async (req, res) => {
+      const newOrder = req.body;
+      const result = await reviewCollection.insertOne(newOrder);
+      res.send(result);
     });
 
     // finding the parts by id
