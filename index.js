@@ -57,7 +57,7 @@ const run = async () => {
     // getting all reviews
     app.get("/reviews", async (req, res) => {
       const query = {};
-      const cursor = reviewCollection.find(query);
+      const cursor = reviewCollection.find(query).sort({ _id: -1 });
       const parts = await cursor.toArray();
       res.send(parts);
     });
@@ -96,6 +96,26 @@ const run = async () => {
         const cursor = myOrderCollection.find(query);
         const myOrders = await cursor.toArray();
         return res.send(myOrders);
+      } else {
+        return res.status(403).send({ message: "Access denied" });
+      }
+    });
+
+    app.get("/users", verifyToken, async (req, res) => {
+      const query = {};
+      const cursor = usersCollection.find(query);
+      const allUsers = await cursor.toArray();
+      res.send(allUsers);
+    });
+
+    app.get("/user/:email", verifyToken, async (req, res) => {
+      const email = req.params.email;
+      const decodedEmail = req.decoded.email;
+      if (email === decodedEmail) {
+        const query = { email: email };
+        const cursor = usersCollection.find(query);
+        const userInfo = await cursor.toArray();
+        return res.send(userInfo);
       } else {
         return res.status(403).send({ message: "Access denied" });
       }
