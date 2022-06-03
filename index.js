@@ -76,16 +76,17 @@ const run = async () => {
       res.send(result);
     });
 
-    app.post("/orders", async (req, res) => {
-      const newOrder = req.body;
-      const result = await orderCollection.insertOne(newOrder);
-      res.send(result);
-    });
-
     app.post("/myOrders", async (req, res) => {
       const newOrder = req.body;
       const result = await myOrderCollection.insertOne(newOrder);
       res.send(result);
+    });
+
+    app.get("/myOrders", async (req, res) => {
+      const query = {};
+      const cursor = myOrderCollection.find(query);
+      const orders = await cursor.toArray();
+      res.send(orders);
     });
 
     app.get("/myOrders/:email", verifyToken, async (req, res) => {
@@ -126,6 +127,41 @@ const run = async () => {
       const query = { _id: ObjectId(id) };
       const result = await myOrderCollection.deleteOne(query);
       res.send(result);
+    });
+
+    app.delete("/users/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const result = await usersCollection.deleteOne(query);
+      res.send(result);
+    });
+
+    app.get("/admin/:email", verifyToken, async (req, res) => {
+      const email = req.params.email;
+      const user = await usersCollection.findOne({ email: email });
+      const isAdmin = user.role === "admin";
+      res.send({ admin: isAdmin });
+    });
+
+    app.put("/user/admin/:email", verifyToken, async (req, res) => {
+      const email = req.params.email;
+      const requester = req.decoded.email;
+      const requesterAcc = await usersCollection.findOne({ email: requester });
+      if (requesterAcc.role === "admin") {
+        const filter = { email: email };
+        const options = { upsert: true };
+        const updateDB = {
+          $set: { role: "admin" },
+        };
+        const result = await usersCollection.updateOne(
+          filter,
+          updateDB,
+          options
+        );
+        return res.send(result);
+      } else {
+        return res.status(403).send({ message: "forbidden" });
+      }
     });
 
     app.put("/user/:email", async (req, res) => {
