@@ -54,6 +54,12 @@ const run = async () => {
       res.send(parts);
     });
 
+    app.post("/parts", async (req, res) => {
+      const newParts = req.body;
+      const result = await partsCollection.insertOne(newParts);
+      res.send(result);
+    });
+
     // getting all reviews
     app.get("/reviews", async (req, res) => {
       const query = {};
