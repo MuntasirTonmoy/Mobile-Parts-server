@@ -10,7 +10,7 @@ const app = express();
 const port = process.env.PORT || 5000;
 
 //middleware
-app.use(cors());
+app.use(cors({ origin: "http://localhost:3000" }));
 app.use(express.json());
 
 const verifyToken = (req, res, next) => {
