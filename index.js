@@ -39,7 +39,17 @@ const client = new MongoClient(uri, {
 
 const run = async () => {
   try {
-    await client.connect();
+    await client.connect(err => {
+      if (err) {
+        console.error(err);
+        return false;
+      }
+      // connection to mongo is successful, listen for requests
+      app.listen(port, () => {
+        console.log("listening for requests");
+      });
+    });
+
     console.log("db connected");
     const partsCollection = client.db("mobileParts").collection("parts");
     const myOrderCollection = client.db("mobileParts").collection("myOrders");
@@ -237,8 +247,4 @@ run().catch(console.dir);
 
 app.get("/", (req, res) => {
   res.send("Manufacturer Server is running ");
-});
-
-app.listen(port, () => {
-  console.log("listing to port ", port);
 });
