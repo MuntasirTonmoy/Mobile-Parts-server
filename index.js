@@ -85,6 +85,19 @@ const run = async () => {
       res.send(result);
     });
 
+    app.patch("/parts", async (req, res) => {
+      const { _id, availableQuantity } = req.body;
+      console.log(_id);
+      const filter = { _id: ObjectId(_id) };
+      const updateDB = {
+        $set: {
+          availableQuantity,
+        },
+      };
+      const updateQuantity = await partsCollection.updateOne(filter, updateDB);
+      res.send(updateQuantity);
+    });
+
     app.delete("/parts/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: ObjectId(id) };
