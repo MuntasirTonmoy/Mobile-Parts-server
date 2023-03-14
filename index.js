@@ -87,8 +87,10 @@ const run = async () => {
 
     app.patch("/parts", async (req, res) => {
       const { _id, availableQuantity } = req.body;
-      console.log(_id);
+
       const filter = { _id: ObjectId(_id) };
+      const product = await partsCollection.findOne(filter);
+
       const updateDB = {
         $set: {
           availableQuantity,
@@ -96,6 +98,33 @@ const run = async () => {
       };
       const updateQuantity = await partsCollection.updateOne(filter, updateDB);
       res.send(updateQuantity);
+    });
+
+    app.patch("/updatepart", async (req, res) => {
+      const {
+        id,
+        name,
+        description,
+        picture,
+        price,
+        minQuantity,
+        availableQuantity,
+      } = req.body;
+
+      const filter = { _id: ObjectId(id) };
+
+      const updateDB = {
+        $set: {
+          name,
+          description,
+          picture,
+          price,
+          minQuantity,
+          availableQuantity,
+        },
+      };
+      const updatePart = await partsCollection.updateMany(filter, updateDB);
+      res.send(updatePart);
     });
 
     app.delete("/parts/:id", async (req, res) => {
@@ -182,9 +211,9 @@ const run = async () => {
 
     app.patch("/myOrders/:id", verifyToken, async (req, res) => {
       const id = req.params.id;
-      console.log(id);
+
       const payment = req.body;
-      console.log(payment);
+
       const filter = { _id: ObjectId(id) };
       const updateDB = {
         $set: {
